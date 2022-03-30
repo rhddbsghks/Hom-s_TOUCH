@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.ssafy.happyhouse.model.mapper.NewsMapper">
+
+	<insert id="registerNews" parameterType="NewsDto">
+		insert into recommend_news ( link, thumbnail,title, regtime)
+		values (#{link}, #{thumbnail},#{title}, now())
+	</insert>
+
+	<resultMap type="NewsDto" id="newsList">
+		<result column="no" property="no" />
+		<result column="link" property="link" />
+		<result column="thumbnail" property="thumbnail" />
+		<result column="title" property="title" />
+		<result column="regtime" property="regTime" />
+	</resultMap>
+
+	<select id="getNewsList" parameterType="map"
+		resultMap="newsList">
+		select no,link, thumbnail,title,date_format(regtime, '%y/%m/%d') as regtime
+		from
+		recommend_news
+		order by no desc
+	</select>
+
+
+	<delete id="deleteNews" parameterType="int">
+		delete from recommend_news
+		where no = #{no}
+	</delete>
+</mapper>

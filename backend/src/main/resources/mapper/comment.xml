@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.ssafy.happyhouse.model.mapper.CommentMapper">
+
+	<insert id="registerComment" parameterType="CommentDto">
+		insert into comment
+		(notice_no, id, content, regtime)
+		values (#{noticeNo},#{id},
+		#{content}, now())
+
+	</insert>
+
+	<resultMap type="CommentDto" id="CommentList">
+		<result column="comment_no" property="commentNo" />
+		<result column="notice_no" property="noticeNo" />
+		<result column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="content" property="content" />
+		<result column="regtime" property="regTime" />
+	</resultMap>
+
+	<select id="listComment" parameterType = "int" resultMap="CommentList">
+		select comment_no,id, u.name, content,
+		case when date_format(regtime,
+		'%Y%m%d') = date_format(now(), '%Y%m%d')
+		then date_format(regtime,
+		'%H:%i:%s')
+		else date_format(regtime, '%y/%m/%d')
+		end regtime
+		from comment
+		left join userinfo u using(id)
+		where notice_no = #{no}
+		order by comment_no desc
+	</select>
+
+	<update id="updateComment" parameterType="CommentDto">
+		update comment
+		set content = #{content}
+		where comment_no = #{commentNo}
+	</update>
+
+
+	<delete id="deleteComment" parameterType="int">
+		delete from comment
+		where
+		comment_no = #{no}
+	</delete>
+
+</mapper>

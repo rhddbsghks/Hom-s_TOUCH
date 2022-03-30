@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.happyhouse.model.mapper.UserMapper">
+
+	<resultMap type="User" id="userList">
+		<result column="id" property="id" />
+		<result column="pw" property="pw" />
+		<result column="name" property="name" />
+		<result column="email" property="email" />
+	</resultMap>
+
+	<select id="getUserList" parameterType="map"
+		resultMap="userList">
+		select id, pw,name,email
+		from userinfo
+		order by name
+		limit #{start}, #{spp}
+	</select>
+	
+	<select id="totalCnt" resultType = "int">
+		select count(*) from userinfo
+	</select>
+
+	<insert id="insertUser" parameterType="User">
+		insert into userinfo (id,
+		pw, name, email)
+		values (#{id}, #{pw}, #{name}, #{email})
+	</insert>
+
+	<select id="login" parameterType="User" resultType="User">
+		select
+		id,name
+		from userinfo
+		where id = #{id} and pw = #{pw}
+	</select>
+
+	<select id="userInfo" parameterType="String" resultType="User">
+		select
+		id,name,email
+		from userinfo
+		where id = #{id}
+	</select>
+
+	<select id="searchInfo" parameterType="map" resultType="User">
+		select
+		id, pw
+		from userinfo
+		where name=#{name} and email = #{email}
+	</select>
+
+	<select id="idCheck" parameterType="String" resultType="int">
+		select
+		count(id)
+		from userinfo
+		where id = #{id}
+	</select>
+
+	<update id="updateUser" parameterType="User">
+		update userinfo
+		set pw =
+		#{pw}, name=#{name}, email=#{email}
+		where id = #{id}
+	</update>
+
+	<delete id="deleteUser" parameterType="String">
+		delete from userinfo
+		where
+		id = #{id}
+	</delete>
+
+</mapper>

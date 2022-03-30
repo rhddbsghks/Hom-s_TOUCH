@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.ssafy.happyhouse.model.mapper.NoticeMapper">
+
+	<insert id="registerNotice" parameterType="NoticeDto">
+		insert into notice (id, subject, content, regtime)
+		values (#{id},
+		#{subject}, #{content}, now())
+		<selectKey resultType="int" keyProperty="noticeNo"
+			order="AFTER">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+
+	<resultMap type="NoticeDto" id="noticeList">
+		<result column="notice_no" property="noticeNo" />
+		<result column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="subject" property="subject" />
+		<result column="content" property="content" />
+		<result column="regtime" property="regTime" />
+		<result column="view" property="view" />
+	</resultMap>
+
+	<select id="listNotice" parameterType="map"
+		resultMap="noticeList">
+		select notice_no,id, u.name, subject,
+		case when date_format(regtime,
+		'%Y%m%d') = date_format(now(), '%Y%m%d')
+		then date_format(regtime,
+		'%H:%i:%s')
+		else date_format(regtime, '%y/%m/%d')
+		end regtime,view
+		from
+		notice
+		left join userinfo u using(id)
+		where id!='admin'
+		<if test="word != null and word != ''">
+			<choose>
+				<when test="key == 'subject'">
+					and subject like concat('%', #{word}, '%')
+				</when>
+				<when test="key == 'content'">
+					and content like concat('%', #{word}, '%')
+				</when>
+
+				<otherwise>
+					and ${key} = #{word}
+				</otherwise>
+			</choose>
+
+		</if>
+		order by notice_no desc
+		limit #{start}, #{spp}
+	</select>
+
+	<select id="notice" parameterType="map" resultMap="noticeList">
+		select
+		notice_no,id, u.name, subject,
+		case when date_format(regtime, '%Y%m%d')
+		= date_format(now(), '%Y%m%d')
+		then date_format(regtime, '%H:%i:%s')
+		else date_format(regtime, '%y/%m/%d')
+		end regtime,view
+		from notice
+		left
+		join userinfo u using(id)
+		where id='admin'
+		order by notice_no desc
+		limit
+		3
+	</select>
+
+	<select id="getNotice" parameterType="int"
+		resultMap="noticeList">
+		select notice_no,id, name, subject,content, regtime,view
+		from notice left join userinfo u using(id)
+		where notice_no = #{no}
+	</select>
+	
+	<select id="totalCnt" resultType = "int">
+		select count(*) from notice
+		where id != 'admin'
+	</select>
+
+	<update id="updateNotice" parameterType="NoticeDto">
+		update notice
+		set subject
+		= #{subject}, content = #{content}
+		where notice_no = #{noticeNo}
+	</update>
+
+
+	<delete id="deleteNotice" parameterType="int">
+		delete from notice
+		where
+		notice_no = #{no}
+	</delete>
+
+	<update id="updateView" parameterType="int">
+		update notice
+		set view =
+		view+1
+		where notice_no = #{noticeNo}
+	</update>
+</mapper>
